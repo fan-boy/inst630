@@ -3,12 +3,12 @@ import Hero from './Components/Hero/Hero'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className="">
+      <div className="w-full flex justify-center">
 
         <Hero />
        
-      </header>
+      </div>
     </div>
   );
 }

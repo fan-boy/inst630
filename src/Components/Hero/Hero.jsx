@@ -4,10 +4,10 @@ import HeroSketch from "./sketch";
 const Hero = () =>{
 
     return(
-        <div>
-            <h1>
+        <div >
+           
                 <HeroSketch />
-            </h1>
+            
         </div>
     )
 

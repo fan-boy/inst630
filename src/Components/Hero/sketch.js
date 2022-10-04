@@ -14,7 +14,7 @@ class HeroSketch extends React.Component {
       // a p5 object "p"
       p.setup = () => {
           //Everyhting that normally happens in setup works
-          p.createCanvas(1300,400);
+          p.createCanvas(window.innerWidth,window.innerHeight);
           for (let i = 0; i < 800; i++) {
             stars[i] = new Star(p);
           }
@@ -60,6 +60,8 @@ class HeroSketch extends React.Component {
       p.draw = () => {
           speed = p.map(p.mouseX, 0, p.width, 0, 50);
           p.background(0)
+          p.textSize(32);
+          p.text('Move cursor across x axis',20,40)
           p.translate(p.width / 2, p.height / 2);
           for (let i = 0; i < stars.length; i++) {
             stars[i].update();
