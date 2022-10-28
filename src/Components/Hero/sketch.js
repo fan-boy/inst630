@@ -15,7 +15,7 @@ class HeroSketch extends React.Component {
       p.setup = () => {
           //Everyhting that normally happens in setup works
           p.createCanvas(window.innerWidth,window.innerHeight);
-          for (let i = 0; i < 800; i++) {
+          for (let i = 0; i < 500; i++) {
             stars[i] = new Star(p);
           }
       }

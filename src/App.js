@@ -43,12 +43,17 @@ function App() {
   return (
     <div className="">
       <div className="w-full flex flex-col justify-center">
-        <div className='w-full p-5 mt-10 justify-center flex'>
+        <div className='w-full justify-center flex flex-col'>
+          <span className='text-3xl text-center pb-5'>Number of UFO sightings as per dates</span>
+          <div className='justify-center flex '>
         <BeeswarmUFO  data={sightings}/>
         </div>
-        {/* <div className='w-full justify-center flex'>
+        </div>
+        <div className='w-screen overflow-hidden justify-center flex flex-col'>
+        <span className='text-3xl text-center '>Mouse controlled Visualization of how it feels to fly in a UFO</span>
+        <span className='text-xl text-center pb-5'>Move cursor along x-axis to fly</span>
        <Hero />
-        </div> */}
+        </div>
       </div>
     </div>
   );
