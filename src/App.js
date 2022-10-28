@@ -1,6 +1,8 @@
 import logo from './logo.svg';
 import Hero from './Components/Hero/Hero'
 import Barchart from './Components/BarChart/barchart';
+import BeeswarmUFO from './Components/BeeswarmUFO/beeswarm';
+import ufoData from './data/UFO sightings.json';
 
 function App() {
   const data = [
@@ -36,13 +38,17 @@ function App() {
     {year: 2017, efficiency: 39.4, sales: 6081000},
   ]
   
+  const sightings = ufoData;
 
   return (
     <div className="">
-      <div className="w-full flex justify-center">
-
-        <Barchart data={data}/>
-       
+      <div className="w-full flex flex-col justify-center">
+        <div className='w-full p-5 mt-10 justify-center flex'>
+        <BeeswarmUFO  data={sightings}/>
+        </div>
+        {/* <div className='w-full justify-center flex'>
+       <Hero />
+        </div> */}
       </div>
     </div>
   );

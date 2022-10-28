@@ -61,7 +61,7 @@ class HeroSketch extends React.Component {
           speed = p.map(p.mouseX, 0, p.width, 0, 50);
           p.background(0)
           p.textSize(32);
-          p.text('Move cursor across x axis',20,40)
+          //p.text('Move cursor across x axis',20,40)
           p.translate(p.width / 2, p.height / 2);
           for (let i = 0; i < stars.length; i++) {
             stars[i].update();
