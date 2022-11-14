@@ -19,7 +19,7 @@ const BeeswarmUFO = ({ data }) => {
       BeeswarmChart(sightings, {
         x: d => d.posted,
         label: "Date →",
-        type: d3.scaleLog, // try d3.scaleLog
+        type: d3.scaleLinear, // try d3.scaleLog
         title: d => `${d.summary}: ${d.shape}\n${d.posted.toLocaleString("en")}.`,
         width:640
       })
@@ -30,7 +30,7 @@ const BeeswarmUFO = ({ data }) => {
   const BeeswarmChart = (data, {
     value = d => d, // convenience alias for x
     label, // convenience alias for xLabel
-    type = d3.scaleLinear, // convenience alias for xType
+    type = d3.scaleTime, // convenience alias for xType
     domain, // convenience alias for xDomain
     x = value, // given d in data, returns the quantitative x value
     title = null, // given d in data, returns the title
@@ -50,26 +50,22 @@ const BeeswarmUFO = ({ data }) => {
     xDomain = domain, // [xmin, xmax]
     xRange = [marginLeft, width - marginRight] // [left, right]
   } = {}) => {
-    const X = d3.map(data, x).map(x => x == null ? NaN : +x);
-    const T = title == null ? null : d3.map(data, title);
-    const G = group == null ? null : d3.map(data, group);
-    // Compute which data points are considered defined.
-    const I = d3.range(X.length).filter(i => !isNaN(X[i]));
+    const X = d3.map(data, x);
+  const T = title == null ? null : d3.map(data, title);
+  
+  // Compute which data points are considered defined.
+  const I = d3.range(X.length).filter(i => !isNaN(X[i]));
 
-    // Compute default domains.
-    if (xDomain === undefined) xDomain = d3.extent(X);
-    if (G && groups === undefined) groups = d3.sort(G);
-
-    // Construct scales and axes.
-    const xScale = xType(xDomain, xRange);
-    const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
-    const color = group == null ? null : d3.scaleOrdinal(groups, colors);
-
-    // Compute the y-positions.
-    const Y = dodge(I.map(i => xScale(X[i])), radius * 2 + padding);
+  // Compute default domains.
+  if (xDomain === undefined) xDomain = d3.extent(X);
+  const xScale = d3.scaleTime(xDomain, xRange);
+  console.log(xScale);
+  const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);   
+    
+   const Y = dodge(I.map(i => xScale(X[i])), radius * 2 + padding);
 
     // Compute the default height;
-    if (height === undefined) height = d3.max(Y) + (radius + padding) * 2 + marginTop + marginBottom;
+    if (height === undefined) height = (d3.max(Y, Math.abs) + radius + padding) * 2 + marginTop + marginBottom;
 
     // Given an array of x-values and a separation radius, returns an array of y-values.
     function dodge(X, radius) {
@@ -77,7 +73,7 @@ const BeeswarmUFO = ({ data }) => {
       const radius2 = radius ** 2;
       const epsilon = 1e-3;
       let head = null, tail = null;
-
+    
       // Returns true if circle ⟨x,y⟩ intersects with any circle in the queue.
       function intersects(x, y) {
         let a = head;
@@ -91,62 +87,60 @@ const BeeswarmUFO = ({ data }) => {
 
       // Place each circle sequentially.
       for (const bi of d3.range(X.length).sort((i, j) => X[i] - X[j])) {
-
+  
         // Remove circles from the queue that can’t intersect the new circle b.
         while (head && X[head.index] < X[bi] - radius2) head = head.next;
-
+    
         // Choose the minimum non-intersecting tangent.
         if (intersects(X[bi], Y[bi] = 0)) {
           let a = head;
           Y[bi] = Infinity;
           do {
             const ai = a.index;
-            let y = Y[ai] + Math.sqrt(radius2 - (X[ai] - X[bi]) ** 2);
-            if (y < Y[bi] && !intersects(X[bi], y)) Y[bi] = y;
+            let y1 = Y[ai] + Math.sqrt(radius2 - (X[ai] - X[bi]) ** 2);
+            let y2 = Y[ai] - Math.sqrt(radius2 - (X[ai] - X[bi]) ** 2);
+            if (Math.abs(y1) < Math.abs(Y[bi]) && !intersects(X[bi], y1)) Y[bi] = y1;
+            if (Math.abs(y2) < Math.abs(Y[bi]) && !intersects(X[bi], y2)) Y[bi] = y2;
             a = a.next;
           } while (a);
         }
-
+    
         // Add b to the queue.
-        const b = { index: bi, next: null };
+        const b = {index: bi, next: null};
         if (head === null) head = tail = b;
         else tail = tail.next = b;
       }
-
+    
       return Y;
     }
-
     const svg = d3.select(d3Chart.current)
       .attr("width", width)
       .attr("height", height)
       .attr("viewBox", [0, 0, width, height])
       .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
-
-    svg.append("g")
+  svg.append("g")
       .attr("transform", `translate(0,${height - marginBottom})`)
       .call(xAxis)
       .call(g => g.append("text")
-        .attr("x", width)
-        .attr("y", marginBottom - 4)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "end")
-        .text(xLabel));
+          .attr("x", width)
+          .attr("y", marginBottom - 4)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "end")
+          .text(xLabel));
 
-    const dot = svg.append("g")
-      .selectAll("circle")
-      .data(I)
-      .join("circle")
+  const dot = svg.append("g")
+    .selectAll("circle")
+    .data(I)
+    .join("circle")
       .attr("cx", i => xScale(X[i]))
-      .attr("cy", i => height - marginBottom - radius - padding - Y[i])
+      .attr("cy", i => (marginTop + height - marginBottom) / 2 + Y[i])
       .attr("r", radius);
 
-    if (G) dot.attr("fill", i => color(G[i]));
-
-    if (T) dot.append("title")
+  if (T) dot.append("title")
       .text(i => T[i]);
 
-    return svg.node();
+  return svg.node();
   }
 
   return (

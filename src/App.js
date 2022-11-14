@@ -3,6 +3,7 @@ import Hero from './Components/Hero/Hero'
 import Barchart from './Components/BarChart/barchart';
 import BeeswarmUFO from './Components/BeeswarmUFO/beeswarm';
 import ufoData from './data/UFO sightings.json';
+import WorldTour from './Components/WorldTour/worldtour';
 
 function App() {
   const data = [
@@ -55,6 +56,7 @@ function App() {
        <Hero />
         </div>
       </div>
+    
     </div>
   );
 }
